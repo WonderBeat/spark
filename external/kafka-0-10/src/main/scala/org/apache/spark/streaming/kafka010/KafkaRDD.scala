@@ -25,7 +25,7 @@ import org.apache.kafka.clients.consumer.{ ConsumerConfig, ConsumerRecord }
 import org.apache.kafka.common.TopicPartition
 
 import org.apache.spark.{Partition, SparkContext, TaskContext}
-import org.apache.spark.internal.Logging
+import org.apache.spark.Logging
 import org.apache.spark.partial.{BoundedDouble, PartialResult}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.scheduler.ExecutorCacheTaskLocation
@@ -159,13 +159,22 @@ private[spark] class KafkaRDD[K, V](
       Seq()
     } else {
       // execs is sorted, tp.hashCode depends only on topic and partition, so consistent index
-      val index = Math.floorMod(tp.hashCode, execs.length)
+      val index = floorMod(tp.hashCode, execs.length).toInt
       val chosen = execs(index)
       Seq(chosen.toString)
     }
   }
 
-  private def errBeginAfterEnd(part: KafkaRDDPartition): String =
+  def floorMod(x: Long, y: Long): Long = x - floorDiv(x, y) * y
+
+  def floorDiv(x: Long, y: Long): Long = {
+    var r = x / y
+    // if the signs are different and modulo not zero, round down
+    if ((x ^ y) < 0 && (r * y != x)) r -= 1
+    r
+  }
+
+  private def errBeginAfterEnd(part: KafkaRDDPartition) =
     s"Beginning offset ${part.fromOffset} is after the ending offset ${part.untilOffset} " +
       s"for topic ${part.topic} partition ${part.partition}. " +
       "You either provided an invalid fromOffset, or the Kafka topic has been damaged"

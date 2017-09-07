@@ -21,13 +21,11 @@ import java.{lang => jl, util => ju}
 import java.util.Locale
 
 import scala.collection.JavaConverters._
-
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.clients.consumer.internals.NoOpConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
-
 import org.apache.spark.annotation.Experimental
-import org.apache.spark.internal.Logging
+import org.apache.spark.Logging
 
 /**
  * :: Experimental ::
@@ -82,7 +80,7 @@ private case class Subscribe[K, V](
 
   def onStart(currentOffsets: ju.Map[TopicPartition, jl.Long]): Consumer[K, V] = {
     val consumer = new KafkaConsumer[K, V](kafkaParams)
-    consumer.subscribe(topics)
+    consumer.subscribe(new ju.ArrayList[String](topics))
     val toSeek = if (currentOffsets.isEmpty) {
       offsets
     } else {
@@ -107,7 +105,7 @@ private case class Subscribe[K, V](
           consumer.seek(topicPartition, offset)
       }
       // we've called poll, we must pause or next poll may consume messages and set position
-      consumer.pause(consumer.assignment())
+      consumer.pause(consumer.assignment().asScala.toSeq: _*)
     }
 
     consumer
@@ -160,7 +158,7 @@ private case class SubscribePattern[K, V](
           consumer.seek(topicPartition, offset)
       }
       // we've called poll, we must pause or next poll may consume messages and set position
-      consumer.pause(consumer.assignment())
+      consumer.pause(consumer.assignment().asScala.toSeq: _* )
     }
 
     consumer
@@ -190,7 +188,7 @@ private case class Assign[K, V](
 
   def onStart(currentOffsets: ju.Map[TopicPartition, jl.Long]): Consumer[K, V] = {
     val consumer = new KafkaConsumer[K, V](kafkaParams)
-    consumer.assign(topicPartitions)
+    consumer.assign(new ju.ArrayList(topicPartitions))
     val toSeek = if (currentOffsets.isEmpty) {
       offsets
     } else {

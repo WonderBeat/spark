@@ -21,11 +21,11 @@
   <parent>
     <groupId>org.apache.spark</groupId>
     <artifactId>spark-parent_2.11</artifactId>
-    <version>2.2.0</version>
+    <version>1.6.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
+  <artifactId>spark-streaming-kafka-dg-0-10_2.10</artifactId>
   <properties>
     <sbt.project.name>streaming-kafka-0-10</sbt.project.name>
   </properties>
@@ -50,7 +50,7 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_${scala.binary.version}</artifactId>
-      <version>0.10.0.1</version>
+      <version>0.9.0.1</version>
       <exclusions>
         <exclusion>
           <groupId>com.sun.jmx</groupId>
@@ -83,21 +83,6 @@
     <dependency>
       <groupId>org.scalacheck</groupId>
       <artifactId>scalacheck_${scala.binary.version}</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-tags_${scala.binary.version}</artifactId>
-    </dependency>
-
-    <!--
-      This spark-tags test-dep is needed even though it isn't used in this module, otherwise testing-cmds that exclude
-      them will yield errors.
-    -->
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-tags_${scala.binary.version}</artifactId>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
 

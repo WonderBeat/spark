@@ -17,24 +17,21 @@
 
 package org.apache.spark.streaming.kafka010
 
-import java.{ util => ju }
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicReference
-
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import java.{util => ju}
 
 import org.apache.kafka.clients.consumer._
-import org.apache.kafka.common.{ PartitionInfo, TopicPartition }
-
-import org.apache.spark.SparkException
-import org.apache.spark.internal.Logging
+import org.apache.kafka.common.TopicPartition
+import org.apache.spark.Logging
 import org.apache.spark.storage.StorageLevel
-import org.apache.spark.streaming.{StreamingContext, Time}
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streaming.scheduler.{RateController, StreamInputInfo}
 import org.apache.spark.streaming.scheduler.rate.RateEstimator
+import org.apache.spark.streaming.scheduler.{RateController, StreamInputInfo}
+import org.apache.spark.streaming.{StreamingContext, Time}
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  *  A DStream where
@@ -189,9 +186,9 @@ private[spark] class DirectKafkaInputDStream[K, V](
     // position for new partitions determined by auto.offset.reset if no commit
     currentOffsets = currentOffsets ++ newPartitions.map(tp => tp -> c.position(tp)).toMap
     // don't want to consume messages, so pause
-    c.pause(newPartitions.asJava)
+    c.pause(newPartitions.toSeq: _*)
     // find latest available offsets
-    c.seekToEnd(currentOffsets.keySet.asJava)
+    c.seekToEnd(currentOffsets.keySet.toSeq: _*)
     parts.map(tp => tp -> c.position(tp)).toMap
   }
 
@@ -248,7 +245,7 @@ private[spark] class DirectKafkaInputDStream[K, V](
     }
 
     // don't actually want to consume any messages, so pause all partitions
-    c.pause(currentOffsets.keySet.asJava)
+    c.pause(currentOffsets.keySet.toSeq: _*)
   }
 
   override def stop(): Unit = this.synchronized {

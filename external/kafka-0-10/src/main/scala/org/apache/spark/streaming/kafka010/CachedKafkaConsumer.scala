@@ -17,13 +17,11 @@
 
 package org.apache.spark.streaming.kafka010
 
-import java.{ util => ju }
+import java.{util => ju}
 
-import org.apache.kafka.clients.consumer.{ ConsumerConfig, ConsumerRecord, KafkaConsumer }
-import org.apache.kafka.common.{ KafkaException, TopicPartition }
-
-import org.apache.spark.SparkConf
-import org.apache.spark.internal.Logging
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.common.{KafkaException, TopicPartition}
+import org.apache.spark.Logging
 
 
 /**
